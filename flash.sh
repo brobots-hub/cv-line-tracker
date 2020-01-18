@@ -11,17 +11,29 @@ function isWSL() {
     uname -a | grep -q Microsoft
 }
 
+function die() {
+    [ -n "${1:-}" ] && echo "$1"
+    # wait for [Enter] when running git-bash from WSL
+    [ -n "${SEPARATE_WINDOW:-}" ] && read
+    exit 1
+}
+
+function checkAdmin() {
+    #TODO git-bash
+    if isWSL; then
+        # TODO!!!
+        ls ~root 1>&2 2>/dev/null || die "WSL shell must be 'Run as Administrator'"
+    elif uname -a | grep -q Linux; then
+        [[ $EUID > 0 ]] && die "This script must be run with 'sudo'"
+    fi
+}
+checkAdmin
+
 # this script can't run under WSL
 GIT_BASH="/mnt/c/Program Files/Git/git-bash.exe"
 isWSL && SEPARATE_WINDOW=yes exec "$GIT_BASH" "$0" "$@"
 
 #------------------------------------------------------------------------------
-
-function die() {
-    # wait for [Enter] when running git-bash from WSL
-    [ -n "${SEPARATE_WINDOW:-}" ] && read
-    exit 1
-}
 
 function yesno() {
     local prompt="${1:-'[Y]es/[N]o?'}"
