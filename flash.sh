@@ -75,6 +75,6 @@ if [ -z "$drive" ]; then
 fi
 
 yesno "Should I flash drive '$drive' ?" \
-    && unzip -p $OS_NAME | dd if=/dev/stdin of=$drive bs=1M status=progress
+    && unzip -p $OS_NAME | dd if=/dev/stdin of=$drive bs=1M status=progress conv=fsync
 
 echo
