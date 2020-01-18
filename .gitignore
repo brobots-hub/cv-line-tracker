@@ -144,5 +144,5 @@ pip-selfcheck.json
 
 *.zip
 .gitsecret/keys/random_seed
+config/secret/*
 !*.secret
-config/secret
