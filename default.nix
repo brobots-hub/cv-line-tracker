@@ -28,6 +28,7 @@ in {
     shell = pkgs.mkShell {
         buildInputs = [
             pythonEnv
+            pkgs.git-secret
         ];
     };
 }
