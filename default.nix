@@ -29,6 +29,7 @@ in {
         buildInputs = [
             pythonEnv
             pkgs.git-secret
+            pkgs.gnupg
         ];
     };
 }
