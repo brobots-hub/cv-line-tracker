@@ -3,18 +3,25 @@
 set -u
 # set -x
 
+IMG_URL="https://downloads.raspberrypi.org/raspbian/images/raspbian-2019-09-30/2019-09-26-raspbian-buster.zip"
+HASH_URL="${IMG_URL}.sha256"
+OS_NAME=$(basename "$IMG_URL")
+
 function isWSL() {
     uname -a | grep -q Microsoft
 }
 
 # this script can't run under WSL
 GIT_BASH="/mnt/c/Program Files/Git/git-bash.exe"
-isWSL && exec "$GIT_BASH" "$0" "$@"
+isWSL && SEPARATE_WINDOW=yes exec "$GIT_BASH" "$0" "$@"
 
-IMG_URL="https://downloads.raspberrypi.org/raspbian/images/raspbian-2019-09-30/2019-09-26-raspbian-buster.zip"
-HASH_URL="${URL}.sha256"
-OS_NAME=$(basename "$IMG_URL")
+#------------------------------------------------------------------------------
 
+function die() {
+    # wait for [Enter] when running git-bash from WSL
+    [ -n "${SEPARATE_WINDOW:-}" ] && read
+    exit 1
+}
 
 function yesno() {
     local prompt="${1:-'[Y]es/[N]o?'}"
@@ -23,17 +30,18 @@ function yesno() {
 }
 
 hash="$(curl --silent "$HASH_URL")"
-echo "Checking hash of OS. It may take some time..."
+echo "* Checking hash of OS. It may take some time..."
 filehash="$(sha256sum $OS_NAME)"
 
 if [ "$filehash" != "$hash" ]; then
     echo "Invalid hash"
     yesno "Should I redownload image?" \
         && rm -rf "$OS_NAME"
+    echo
 fi
 
 if [ -f "$OS_NAME" ]; then
-    echo "Using existing file"
+    echo "* Using existing file"
 else
     curl -L -O "$IMG_URL"
 fi
@@ -42,14 +50,18 @@ fi
 drive="${1:-}"
 
 if [ -z "$drive" ]; then
-    echo 'You have to enter name of disk. Run as'
+    echo '* You have to enter name of disk. Run as'
     echo '  ./flash.sh /dev/sdb'
-    echo ' or whatever disk you have'
-    for device in /dev/sd?; do echo; echo device $device; dd if=$device of=/dev/stdout bs=1K count=1 status=none | strings; done; read
-    exit 1
+    echo ' or whatever disk you have. Here is list of disks with potential filesystem info:'
+    for device in /dev/sd?; do
+        echo
+        echo "- device $device"
+        dd if=$device of=/dev/stdout bs=1K count=1 status=none | strings
+    done
+    die
 fi
 
-yesno "Should I flash drive $drive ?" \
+yesno "Should I flash drive '$drive' ?" \
     && unzip -p $OS_NAME | dd if=/dev/stdin of=$drive bs=1M status=progress
 
 echo
