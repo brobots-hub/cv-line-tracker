@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+set -u
 # set -x
 
 IMG_URL="https://downloads.raspberrypi.org/raspbian/images/raspbian-2019-09-30/2019-09-26-raspbian-buster.zip"
@@ -27,7 +28,7 @@ else
 fi
 
 
-drive="$1"
+drive="${1:-}"
 
 if [ -z "$drive" ]; then
     echo 'You have to enter name of disk. Run as'
