@@ -65,7 +65,8 @@ if [ -z "$drive" ]; then
     echo '* You have to enter name of disk. Run as'
     echo '  ./flash.sh /dev/sdb'
     echo ' or whatever disk you have. Here is list of disks with potential filesystem info:'
-    for device in /dev/sd?; do
+    devices="$(ls -d /dev/sd? /dev/mmcblk? 2>/dev/null)"
+    for device in $devices; do
         echo
         echo "- device $device"
         dd if=$device of=/dev/stdout bs=1K count=1 status=none | strings
