@@ -1,8 +1,14 @@
+#!/usr/bin/env bash
+
 # set -x
-OS_NAME=2019-09-26-raspbian-buster.zip
+
+IMG_URL="https://downloads.raspberrypi.org/raspbian/images/raspbian-2019-09-30/2019-09-26-raspbian-buster.zip"
+HASH_URL="${URL}.sha256"
+OS_NAME=$(basename "$IMG_URL")
+
 GIT_BASH="/mnt/c/Program Files/Git/git-bash.exe"
 
-hash="$(curl https://downloads.raspberrypi.org/raspbian/images/raspbian-2019-09-30/2019-09-26-raspbian-buster.zip.sha256 --silent)"
+hash="$(curl --silent "$HASH_URL")"
 echo "Checking hash of OS. It may take some time..."
 filehash="$(sha256sum $OS_NAME)"
 
@@ -17,7 +23,7 @@ fi
 if [ -f "$OS_NAME" ]; then
     echo "Using existing file"
 else
-    curl -L -O "https://downloads.raspberrypi.org/raspbian/images/raspbian-2019-09-30/$OS_NAME"
+    curl -L -O "$IMG_URL"
 fi
 
 
