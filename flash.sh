@@ -9,16 +9,20 @@ OS_NAME=$(basename "$IMG_URL")
 
 GIT_BASH="/mnt/c/Program Files/Git/git-bash.exe"
 
+function yesno() {
+    local prompt="${1:-'[Y]es/[N]o?'}"
+    read -p "$prompt" -n 1 -r
+    [[ $REPLY =~ ^[Yy]$ ]] && return 0 || return 1
+}
+
 hash="$(curl --silent "$HASH_URL")"
 echo "Checking hash of OS. It may take some time..."
 filehash="$(sha256sum $OS_NAME)"
 
 if [ "$filehash" != "$hash" ]; then
     echo "Invalid hash"
-    read -p "Are you sure? " -n 1 -r
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        rm -rf "$OS_NAME"
-    fi
+    yesno "Should I redownload image?" \
+        && rm -rf "$OS_NAME"
 fi
 
 if [ -f "$OS_NAME" ]; then
@@ -38,10 +42,7 @@ if [ -z "$drive" ]; then
     exit 1
 fi
 
-echo "$drive"
-read -p "Is that OK? " -n 1 -r
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    "$GIT_BASH" -c "unzip -p $OS_NAME | dd if=/dev/stdin of=$drive bs=1M status=progress"
-fi
+yesno "Should I flash drive $drive ?" \
+    && "$GIT_BASH" -c "unzip -p $OS_NAME | dd if=/dev/stdin of=$drive bs=1M status=progress"
 
 echo
