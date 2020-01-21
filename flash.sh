@@ -22,7 +22,7 @@ function checkAdmin() {
     #TODO git-bash
     if isWSL; then
         # TODO!!!
-        ls ~root 1>&2 2>/dev/null || die "WSL shell must be 'Run as Administrator'"
+        /mnt/c/WINDOWS/system32/net.exe session 1>&2 2>/dev/null|| die "WSL shell must be 'Run as Administrator'"
     elif uname -a | grep -q Linux; then
         [[ $EUID > 0 ]] && die "This script must be run with 'sudo'"
     fi
