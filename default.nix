@@ -10,7 +10,7 @@ let
                             enablePython = true;
                             enableGtk2 = true;
                             enableFfmpeg = true;
-                            enableTesseract = true;
+                            enableTesseract = true; # optional
                         });
                     };
                 };
@@ -20,16 +20,20 @@ let
 
   pythonEnv = pkgs.python3.withPackages (p: [
       p.opencv4
-      p.ipython
       p.numpy
+      p.ipython  # optional
   ]);
 
 in {
     shell = pkgs.mkShell {
         buildInputs = [
             pythonEnv
+
             pkgs.git-secret
-            pkgs.gnupg
+            pkgs.gnupg # required for git-secret
+
+            # for ffserver and ffplay - they are absent in pkgs.ffmpeg
+            pkgs.ffmpeg-full
         ];
     };
 }
