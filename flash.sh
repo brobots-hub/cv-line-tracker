@@ -35,6 +35,8 @@ isWSL && SEPARATE_WINDOW=yes exec "$GIT_BASH" "$0" "$@"
 
 #------------------------------------------------------------------------------
 
+trap '[ -n ${SEPARATE_WINDOW:-} ] && echo "Press any key to exit..." && read' EXIT
+
 function yesno() {
     local prompt="${1:-'[Y]es/[N]o?'}"
     read -p "$prompt" -n 1 -r
