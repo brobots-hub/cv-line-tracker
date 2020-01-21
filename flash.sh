@@ -37,7 +37,7 @@ isWSL && SEPARATE_WINDOW=yes exec "$GIT_BASH" "$0" "$@"
 
 function yesno() {
     local prompt="${1:-'[Y]es/[N]o?'}"
-    read -p "$prompt" -n 1 -r
+    read -p "$prompt" -n 1 -r && echo
     [[ $REPLY =~ ^[Yy]$ ]] && return 0 || return 1
 }
 
@@ -74,7 +74,49 @@ if [ -z "$drive" ]; then
     die
 fi
 
+drive_was_flashed=
+
 yesno "Should I flash drive '$drive' ?" \
-    && unzip -p $OS_NAME | dd if=/dev/stdin of=$drive bs=1M status=progress conv=fsync
+    && unzip -p $OS_NAME | dd if=/dev/stdin of=$drive bs=1M status=progress conv=fsync \
+    || : drive_was_flashed=yes
 
 echo
+
+#----------
+
+function bootstrap_ssh_part1() {
+    echo "* Please eject MicroSD card and insert it back. Press ENTER when done"
+    read
+
+    boot_drive="$(ls ${drive}* | sed -n 2p)"
+    yesno "* Detected Raspbian /boot as '$boot_drive'. Continue?" \
+        || exit 0
+
+    umount "$boot_drive" || echo "Not yet mounted"
+
+    boot_mount=$(mktemp -d)
+    function cleanup() {
+        echo "* Cleaning up..."
+        sync
+        umount "$boot_drive"
+        rmdir "$boot_mount"
+        echo "  ...done"
+    }
+
+    mount "$boot_drive" $boot_mount
+    echo "* Drive is mounted to $boot_mount"
+
+    touch "$boot_mount/ssh"
+    cp -f config/secret/wpa_supplicant.conf "$boot_mount/"
+    echo "* Bootstrap done! Insert MicroSD into Raspberry and boot it up."
+
+    cleanup
+}
+
+if [ -n "$drive_was_flashed" ]; then
+    bootstrap_ssh_part1
+else
+    yesno "Initialize WiFi/SSH?" \
+        && bootstrap_ssh_part1
+fi
+
