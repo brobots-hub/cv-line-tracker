@@ -31,7 +31,8 @@ checkAdmin
 
 # this script can't run under WSL
 GIT_BASH="/mnt/c/Program Files/Git/git-bash.exe"
-isWSL && SEPARATE_WINDOW=yes exec "$GIT_BASH" "$0" "$@"
+# ugh. No easy way to pass envvar from WSL to git-bash
+isWSL && exec "$GIT_BASH" -c "export SEPARATE_WINDOW=yes; bash $0 \"\$@\"" "$@"
 
 #------------------------------------------------------------------------------
 
@@ -55,7 +56,11 @@ fi
 if [ -f "$OS_NAME" ]; then
     echo "* Using existing file"
 else
-    curl -L -O "$IMG_URL"
+    trap 'exit 1' SIGINT # handle Ctrl-C correctly in a while true loop
+    while true; do
+        sleep 1
+        curl -L -O -C - "$IMG_URL" && break
+    done
 fi
 
 
