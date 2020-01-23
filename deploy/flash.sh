@@ -6,6 +6,7 @@ set -u
 IMG_URL="https://downloads.raspberrypi.org/raspbian/images/raspbian-2019-09-30/2019-09-26-raspbian-buster.zip"
 HASH_URL="${IMG_URL}.sha256"
 OS_NAME=$(basename "$IMG_URL")
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 function isWSL() {
     uname -a | grep -q Microsoft
@@ -119,7 +120,7 @@ function bootstrap_ssh_part1() {
     }
 
     touch "$boot_mount/ssh"
-    cp -rf config/secret/wpa_supplicant.conf "$boot_mount/"
+    cp -rf $DIR/config/secret/wpa_supplicant.conf "$boot_mount/"
 
     echo "* Bootstrap done! Insert MicroSD into Raspberry and boot it up."
 
