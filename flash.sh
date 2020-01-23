@@ -73,7 +73,7 @@ if [ -z "$drive" ]; then
     for device in $devices; do
         echo
         echo "- device $device"
-        dd if=$device of=/dev/stdout bs=1K count=1 status=none | strings
+        dd if=$device bs=1K count=1 status=none | strings
     done
     die
 fi
