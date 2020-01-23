@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 set -u
-# set -x
+set -x
 
 IMG_URL="https://downloads.raspberrypi.org/raspbian/images/raspbian-2019-09-30/2019-09-26-raspbian-buster.zip"
 HASH_URL="${IMG_URL}.sha256"
@@ -32,7 +32,7 @@ checkAdmin
 # this script can't run under WSL
 GIT_BASH="/mnt/c/Program Files/Git/git-bash.exe"
 # ugh. No easy way to pass envvar from WSL to git-bash
-isWSL && exec "$GIT_BASH" -c "export SEPARATE_WINDOW=yes; bash $0 \"\$@\"" "$@"
+isWSL && exec "$GIT_BASH" -c "export SEPARATE_WINDOW=yes; export drive="${1:-}"; bash $0 \"\$@\"" "$@"
 
 #------------------------------------------------------------------------------
 
@@ -46,7 +46,7 @@ function yesno() {
 
 hash="$(curl --silent "$HASH_URL")"
 echo "* Checking hash of OS. It may take some time..."
-filehash="$(sha256sum $OS_NAME)"
+filehash="$(sha256sum -t $OS_NAME)"
 
 if [ "$filehash" != "$hash" ]; then
     echo "Invalid hash"
@@ -64,9 +64,6 @@ else
         curl -L -O -C - "$IMG_URL" && break
     done
 fi
-
-
-drive="${1:-}"
 
 if [ -z "$drive" ]; then
     echo '* You have to enter name of disk. Run as'
