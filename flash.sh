@@ -92,7 +92,7 @@ function bootstrap_ssh_part1() {
     echo "* Please eject MicroSD card and insert it back. Press ENTER when done"
     read
 
-    boot_drive="$(ls ${drive}* | sed -n 2p)"
+    boot_drive="$(ls ${drive}* | uniq | sed -n 2p)"
 
     yesno "* Detected Raspbian /boot as '$boot_drive'. Continue?" \
         || exit 0
@@ -101,8 +101,8 @@ function bootstrap_ssh_part1() {
 
     if [[ -f /proc/partitions ]]
     then
-        boot_drive=$(cat /proc/partitions | grep $(basename $boot_drive)1 \
-                        | grep -E -o '\w:' | awk '{print tolower($0)}')
+        boot_drive=$(cat /proc/partitions | grep $(basename $boot_drive) \
+                        | grep -E -o '\w:' | awk '{print tolower($0)}' | cut -d: -f1)
         boot_mount="/$boot_drive"
     else
         boot_mount=$(mktemp -d)
