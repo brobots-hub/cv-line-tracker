@@ -103,9 +103,13 @@ function bootstrap_ssh_part1() {
     then
         boot_drive=$(cat /proc/partitions | grep $(basename $boot_drive)1 \
                         | grep -E -o '\w:' | awk '{print tolower($0)}')
+        boot_mount="/$boot_drive"
+    else
+        boot_mount=$(mktemp -d)
+        mount "$boot_drive" $boot_mount
+        echo "* Drive is mounted to $boot_mount"
     fi
 
-    boot_mount=$(mktemp -d)
     function cleanup() {
         echo "* Cleaning up..."
         sync
@@ -114,10 +118,7 @@ function bootstrap_ssh_part1() {
         echo "  ...done"
     }
 
-    mount "$boot_drive" $boot_mount
-    echo "* Drive is mounted to $boot_mount"
-
-    touch "$boot_mount/ssh"    
+    touch "$boot_mount/ssh"
     cp -rf config/secret/wpa_supplicant.conf "$boot_mount/"
 
     echo "* Bootstrap done! Insert MicroSD into Raspberry and boot it up."
