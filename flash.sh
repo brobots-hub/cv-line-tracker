@@ -81,7 +81,7 @@ fi
 drive_was_flashed=
 
 yesno "Should I flash drive '$drive' ?" \
-    && unzip -p $OS_NAME | dd if=/dev/stdin of=$drive bs=1M status=progress conv=fsync \
+    && unzip -p $OS_NAME | dd of=$drive bs=1M status=progress conv=fsync \
     || : drive_was_flashed=yes
 
 echo
