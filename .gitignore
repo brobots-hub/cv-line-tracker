@@ -142,7 +142,8 @@ pip-selfcheck.json
 
 # End of https://www.gitignore.io/api/venv,python,opencv,visualstudiocode
 
-*.zip
+**/*.zip
 .gitsecret/keys/random_seed
+deploy/config/secret/*
 config/secret/*
 !*.secret
