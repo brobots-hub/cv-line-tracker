@@ -7,6 +7,7 @@ REMOTE_HOST=line-tracker.local
 REMOTE_IP=
 VERBOSE=
 PRINT_ONLY=
+SSH_ONLY=
 
 function die() {
     [ -n "${1:-}" ] && echo "$1"
@@ -18,6 +19,7 @@ function usage {
     echo "Usage: ./deploy.sh [--verbose] [--user <user>] [--ip <ip>] [<host>]"
     echo "  <host>   - host to deploy to. Can be mDNS address. Default - '$REMOTE_HOST'"
     echo "  --ip     - IP of remote host. Default is detected from <host>"
+    echo "  --ssh    - just SSH to remote host"
     echo "  --print-ip - print IP of remote host"
     echo "  --user   - remote user. Default -'$REMOTE_USER'"
     echo "  --verobse- be verbose"
@@ -36,6 +38,9 @@ while [ "$1" != "" ]; do
             ;;
         --print-ip )
             PRINT_ONLY=yes
+            ;;
+        --ssh )
+            SSH_ONLY=yes
             ;;
         --verbose )
             VERBOSE=y
@@ -86,6 +91,12 @@ function copyStuff() {
 echo "checking connection..."
 IP="$(getIP $REMOTE_HOST)"
 ssh -oBatchMode=yes $REMOTE_USER@$IP sh -c 'echo'|| die "Please copy your public SSH key to remote machine!"
+
+if [ -n "$SSH_ONLY" ]; then
+    ssh $REMOTE_USER@$IP
+    exit 0
+fi
+
 echo "Copying to $REMOTE_HOST..."
 copyStuff $REMOTE_HOST
 ssh $REMOTE_USER@$IP '
