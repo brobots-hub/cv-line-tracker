@@ -6,11 +6,19 @@ REMOTE_USER=pi
 REMOTE_HOST=line-tracker.local
 REMOTE_IP=
 VERBOSE=
+PRINT_ONLY=
+
+function die() {
+    [ -n "${1:-}" ] && echo "$1"
+    # wait for [Enter] when running git-bash from WSL
+    exit 1
+}
 
 function usage {
     echo "Usage: ./deploy.sh [--verbose] [--user <user>] [--ip <ip>] [<host>]"
     echo "  <host>   - host to deploy to. Can be mDNS address. Default - '$REMOTE_HOST'"
     echo "  --ip     - IP of remote host. Default is detected from <host>"
+    echo "  --print-ip - print IP of remote host"
     echo "  --user   - remote user. Default -'$REMOTE_USER'"
     echo "  --verobse- be verbose"
     echo "  --help   - show this help"
@@ -25,6 +33,9 @@ while [ "$1" != "" ]; do
         --ip )
             shift
             REMOTE_IP="$1"
+            ;;
+        --print-ip )
+            PRINT_ONLY=yes
             ;;
         --verbose )
             VERBOSE=y
@@ -50,30 +61,26 @@ function isWSL() {
 
 function getIP() {
     local IP="${REMOTE_IP:-$1}"
-    if [[ $IP =~ 192.* ]]; then
+    if [[ $IP =~ 192.* || $IP =~ fe80:: ]]; then
         echo $IP
     elif [[ $IP =~ .*\.local ]]; then
         if isWSL; then
             powershell.exe "Resolve-DnsName $IP" | grep '192' | awk '{print $5}'
         else
-            avahi-resolve -n $IP | awk '{print $2}'
+            avahi-resolve -4 -n $IP | awk '{print $2}'
         fi
     else
         echo $IP
     fi
 }
 
+[ -n "$PRINT_ONLY" ] && die "$(getIP $REMOTE_HOST)"
+
 function copyStuff() {
     local RPIIP=$(getIP $1)
     [ -n "$VERBOSE" ] && : verbose="-v" || verbose=""
     rsync $verbose -a --delete --no-owner $DIR/config/$1 $REMOTE_USER@$RPIIP:config
     rsync $verbose -a --delete --no-owner $DIR/../src $REMOTE_USER@$RPIIP:src
-}
-
-function die() {
-    [ -n "${1:-}" ] && echo "$1"
-    # wait for [Enter] when running git-bash from WSL
-    exit 1
 }
 
 echo "checking connection..."
