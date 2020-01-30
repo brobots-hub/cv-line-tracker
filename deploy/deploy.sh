@@ -1,15 +1,26 @@
 #!/usr/bin/env bash
 
+# set -x
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REMOTE_USER=pi
 REMOTE_HOST=line-tracker.local
 REMOTE_IP=
 VERBOSE=
+PRINT_ONLY=
+SSH_ONLY=
+
+function die() {
+    [ -n "${1:-}" ] && echo "$1"
+    # wait for [Enter] when running git-bash from WSL
+    exit 1
+}
 
 function usage {
     echo "Usage: ./deploy.sh [--verbose] [--user <user>] [--ip <ip>] [<host>]"
     echo "  <host>   - host to deploy to. Can be mDNS address. Default - '$REMOTE_HOST'"
     echo "  --ip     - IP of remote host. Default is detected from <host>"
+    echo "  --ssh    - just SSH to remote host"
+    echo "  --print-ip - print IP of remote host"
     echo "  --user   - remote user. Default -'$REMOTE_USER'"
     echo "  --verobse- be verbose"
     echo "  --help   - show this help"
@@ -24,6 +35,12 @@ while [ "$1" != "" ]; do
         --ip )
             shift
             REMOTE_IP="$1"
+            ;;
+        --print-ip )
+            PRINT_ONLY=yes
+            ;;
+        --ssh )
+            SSH_ONLY=yes
             ;;
         --verbose )
             VERBOSE=y
@@ -48,31 +65,41 @@ function isWSL() {
 }
 
 function getIP() {
-    if [ -n "$REMOTE_IP" ]; then
-        echo $REMOTE_IP
-    elif [[ $1 =~ 192.* ]]; then
-        echo $1
-    elif [[ $1 =~ .*\.local ]]; then
+    local IP="${REMOTE_IP:-$1}"
+    if [[ $IP =~ 192.* || $IP =~ fe80:: ]]; then
+        echo $IP
+    elif [[ $IP =~ .*\.local ]]; then
         if isWSL; then
-            powershell.exe "Resolve-DnsName $1" | grep '192' | awk '{print $5}'
+            powershell.exe "Resolve-DnsName $IP" | grep '192' | awk '{print $5}'
         else
-            avahi-resolve -n $1 | cut -d\  -f1
+            avahi-resolve -4 -n $IP | awk '{print $2}'
         fi
     else
-        echo $1
+        echo $IP
     fi
 }
+
+[ -n "$PRINT_ONLY" ] && die "$(getIP $REMOTE_HOST)"
 
 function copyStuff() {
     local RPIIP=$(getIP $1)
     [ -n "$VERBOSE" ] && : verbose="-v" || verbose=""
-    rsync $verbose -a --no-owner $DIR/config/$1 $REMOTE_USER@$RPIIP:config
-    rsync $verbose -a --no-owner $DIR/../src $REMOTE_USER@$RPIIP:src
+    rsync $verbose -a --delete --no-owner $DIR/config/$1 $REMOTE_USER@$RPIIP:config
+    rsync $verbose -a --delete --no-owner $DIR/../src $REMOTE_USER@$RPIIP:src
 }
+
+echo "checking connection..."
+IP="$(getIP $REMOTE_HOST)"
+ssh -oBatchMode=yes $REMOTE_USER@$IP sh -c 'echo'|| die "Please copy your public SSH key to remote machine!"
+
+if [ -n "$SSH_ONLY" ]; then
+    ssh $REMOTE_USER@$IP
+    exit 0
+fi
 
 echo "Copying to $REMOTE_HOST..."
 copyStuff $REMOTE_HOST
-ssh $REMOTE_USER@$(getIP $REMOTE_HOST) '
+ssh $REMOTE_USER@$IP '
   set -u
   failed=()
   RED='"'"'\033[0;31m'"'"'
