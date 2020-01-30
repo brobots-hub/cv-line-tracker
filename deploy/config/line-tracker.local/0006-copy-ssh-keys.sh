@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-cp ./authorized_keys ~/.ssh/
+cp etc/authorized_keys ~/.ssh/
 echo "Added public SSH keys"
