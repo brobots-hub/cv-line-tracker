@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 
-# set -x
+#set -x
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REMOTE_USER=pi
 REMOTE_HOST=line-tracker.local
 REMOTE_IP=
 VERBOSE=
 PRINT_ONLY=
+DETECT_ONLY=
 SSH_ONLY=
+SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
 function die() {
     [ -n "${1:-}" ] && echo "$1"
@@ -20,7 +22,8 @@ function usage {
     echo "  <host>   - host to deploy to. Can be mDNS address. Default - '$REMOTE_HOST'"
     echo "  --ip     - IP of remote host. Default is detected from <host>"
     echo "  --ssh    - just SSH to remote host"
-    echo "  --print-ip - print IP of remote host"
+    echo "  --print-ip  - print IP of remote host"
+    echo "  --detect-ip - detect IPs of rpi devices around"
     echo "  --user   - remote user. Default -'$REMOTE_USER'"
     echo "  --verobse- be verbose"
     echo "  --help   - show this help"
@@ -38,6 +41,9 @@ while [ "$1" != "" ]; do
             ;;
         --print-ip )
             PRINT_ONLY=yes
+            ;;
+        --detect-ip )
+            DETECT_ONLY=yes
             ;;
         --ssh )
             SSH_ONLY=yes
@@ -80,26 +86,30 @@ function getIP() {
 }
 
 [ -n "$PRINT_ONLY" ] && die "$(getIP $REMOTE_HOST)"
+[ -n "$DETECT_ONLY" ] && {
+   arp -n | awk '/b8:27/ {print $1}'
+   exit 0
+}
 
 function copyStuff() {
     local RPIIP=$(getIP $1)
     [ -n "$VERBOSE" ] && : verbose="-v" || verbose=""
-    rsync $verbose -a --delete --no-owner $DIR/config/$1 $REMOTE_USER@$RPIIP:config
-    rsync $verbose -a --delete --no-owner $DIR/../src $REMOTE_USER@$RPIIP:src
+    rsync -e "ssh $SSH_OPTS" $verbose -a --delete --no-owner $DIR/config/$1 $REMOTE_USER@$RPIIP:config
+    rsync -e "ssh $SSH_OPTS" $verbose -a --delete --no-owner $DIR/../src $REMOTE_USER@$RPIIP:src
 }
 
 echo "checking connection..."
 IP="$(getIP $REMOTE_HOST)"
-ssh -oBatchMode=yes $REMOTE_USER@$IP sh -c 'echo'|| die "Please copy your public SSH key to remote machine!"
+ssh -oBatchMode=yes $SSH_OPTS $REMOTE_USER@$IP sh -c 'echo'|| die "Please copy your public SSH key to remote machine!"
 
 if [ -n "$SSH_ONLY" ]; then
-    ssh $REMOTE_USER@$IP
+    ssh $SSH_OPTS $REMOTE_USER@$IP
     exit 0
 fi
 
 echo "Copying to $REMOTE_HOST..."
 copyStuff $REMOTE_HOST
-ssh $REMOTE_USER@$IP '
+ssh $SSH_OPTS $REMOTE_USER@$IP '
   set -u
   failed=()
   RED='"'"'\033[0;31m'"'"'
