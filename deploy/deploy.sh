@@ -102,11 +102,15 @@ function copyStuff() {
 
 echo "checking connection..."
 IP="$(getIP $REMOTE_HOST)"
-ssh -oBatchMode=yes $SSH_OPTS $REMOTE_USER@$IP sh -c 'echo'|| die "Please copy your public SSH key to remote machine!"
 
 if [ -n "$SSH_ONLY" ]; then
-    ssh $SSH_OPTS $REMOTE_USER@$IP
+    ssh -oBatchMode=yes $SSH_OPTS $REMOTE_USER@$IP || {
+	ssh-copy-id $REMOTE_USER@$IP
+        ssh $SSH_OPTS $REMOTE_USER@$IP
+    }
     exit 0
+else
+  ssh -oBatchMode=yes $SSH_OPTS $REMOTE_USER@$IP sh -c 'echo'|| die "Please copy your public SSH key to remote machine!"
 fi
 
 echo "Copying to $REMOTE_HOST..."
