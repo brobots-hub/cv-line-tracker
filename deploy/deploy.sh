@@ -10,7 +10,9 @@ PRINT_ONLY=
 DETECT_ONLY=
 SSH_ONLY=
 SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
-
+if [[ "$TERM" =~ kitty ]]; then
+  export TERM=xterm-color
+fi
 function die() {
     [ -n "${1:-}" ] && echo "$1"
     # wait for [Enter] when running git-bash from WSL
