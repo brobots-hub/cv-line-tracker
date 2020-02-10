@@ -1,15 +1,17 @@
 import glob
-
 import cv2
 import src.track_utils as track_utils
 
-for img_path in glob.glob('./data/track-photo/*.JPG'):
-    img = cv2.imread(img_path)
-    print(track_utils.track(img, steps=5, y_limit = 0.5, debug=True))
-
-    #cv2.namedWindow(img_path, cv2.WINDOW_NORMAL)
-    #cv2.resizeWindow(img_path, 800, 600)
-
-    #cv2.imshow(img_path, img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+cap = cv2.VideoCapture('./data/track-photo/video_2020-02-10_14-31-54.mp4')
+cv2.namedWindow("video", cv2.WINDOW_NORMAL)
+i=0
+while (cap.isOpened()):
+    if i%10 == 0:
+        ret, frame = cap.read()
+        print(track_utils.track(frame, steps=10, y_limit = 1, debug=True))
+        cv2.imshow("video",frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+    i += 1;
+cap.release()
+cv2.destroyAllWindows()

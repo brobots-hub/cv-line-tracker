@@ -7,8 +7,8 @@ cv2.namedWindow("img_path", cv2.WINDOW_KEEPRATIO )
 
 def filter_color(img):
     img = cv2.bilateralFilter(img,9,75,75)
-    lower_bound = np.array([30, 30, 30]) 
-    upper_bound = np.array([150, 150,150]) 
+    lower_bound = np.array([100, 100, 100]) 
+    upper_bound = np.array([255, 255,255]) 
     
     mask = cv2.inRange(img, lower_bound, upper_bound) 
 
@@ -18,12 +18,12 @@ def filter_color(img):
 
 
 
-def filter_contours(contours, step):
+def filter_contours(img,contours, step):
     filtered = []
     for contour in contours:
-        l = cv2.arcLength(contour, True)
+        _,_,w,_ = cv2.boundingRect(contour)
         cnt_area = int(cv2.contourArea(contour))
-        if cnt_area > 200*(10/step) and cnt_area < 10000*(10/step):
+        if cnt_area > ((img.shape[0] * img.shape[1]) * 0.10 / step) and (cnt_area < ((img.shape[0] * img.shape[1]) * 0.7) / step) and w < (img.shape[1]*0.4):
             filtered.append(contour)
     return filtered
 
@@ -31,7 +31,7 @@ def sub_contours(img_origin, y_from, y_to):
     y_from, y_to = max(1,int(y_from)), int(y_to)
     img = img_origin[-y_to:-y_from,:]
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    ret, thresh = cv2.threshold(img, 1, 255, cv2.THRESH_BINARY_INV)
+    ret, thresh = cv2.threshold(img, 127, 255, 0)
     thresh = cv2.bitwise_not(thresh)
     contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     for c in contours:
@@ -40,7 +40,7 @@ def sub_contours(img_origin, y_from, y_to):
 
 def center(cnt):
     M = cv2.moments(cnt)
-    cx = int(M['m10']/M['m00'])
+    cx = int(M['m10']/M['m00']) 
     cy = int(M['m01']/M['m00'])
     return (int(cx), int(cy))
 
@@ -48,10 +48,11 @@ def track(img_origin, steps=10, y_limit=0.8, debug=False):
     result = []
     step_y = img_origin.shape[0] * y_limit / steps
     nearest_x = img_origin.shape[1] * 0.5
-    img = filter_color(img)
+    img = filter_color(img_origin)
+
     for i in range(0,steps):
-        cnts = sub_contours(img, i * step_y, (i + 1) * step_y)
-        cnts = filter_contours(cnts, steps)
+        cnts = sub_contours(img, i * step_y, (i+1)* step_y)
+        cnts = filter_contours(img,cnts, steps)
         tracks = []
         good_contours = [] 
         for j, cnt in enumerate(cnts):
@@ -74,10 +75,8 @@ def track(img_origin, steps=10, y_limit=0.8, debug=False):
             if debug:
                 cv2.circle(img_origin, (x, y), 3, (0, 0, 255), 2)
             good_contours.append(cnts[min_index])
-        if len(good_contours) >0 :
-            cv2.drawContours(img_origin, good_contours, -1, (255, 0,0 ))
-
-    
+        if len(good_contours) > 0:
+            cv2.drawContours(img_origin, good_contours, -1, (255, 0,0), 5)
     return result
 
 
