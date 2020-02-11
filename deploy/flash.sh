@@ -36,11 +36,10 @@ checkAdmin
 # this script can't run under WSL
 GIT_BASH="/mnt/c/Program Files/Git/git-bash.exe"
 # ugh. No easy way to pass envvar from WSL to git-bash
-isWSL && exec "$GIT_BASH" -c "export SEPARATE_WINDOW=yes; export drive="${1:-}"; bash $0 \"\$@\"" "$@"
-
+isWSL && exec "$GIT_BASH" -c "export SEPARATE_WINDOW=yes; bash $0 $@" 
 #------------------------------------------------------------------------------
 
-trap '[ -n ${SEPARATE_WINDOW:-} ] && echo "Press any key to exit..." && read' EXIT
+trap '[ -n "${SEPARATE_WINDOW:-}" ] && echo "Press any key to exit..." && read' EXIT
 
 function yesno() {
     local prompt="${1:-'[Y]es/[N]o?'}"
@@ -69,6 +68,7 @@ else
     done
 fi
 
+drive="${1:-}"
 if [ -z "$drive" ]; then
     echo '* You have to enter name of disk. Run as'
     echo '  ./flash.sh /dev/sdb'
