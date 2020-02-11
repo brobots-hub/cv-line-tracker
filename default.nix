@@ -22,6 +22,7 @@ let
       p.opencv4
       p.numpy
       p.ipython  # optional
+      p.flask
   ]);
 
 in {
