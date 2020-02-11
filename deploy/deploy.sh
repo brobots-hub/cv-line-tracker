@@ -105,7 +105,7 @@ IP="$(getIP $REMOTE_HOST)"
 
 if [ -n "$SSH_ONLY" ]; then
     ssh -oBatchMode=yes $SSH_OPTS $REMOTE_USER@$IP || {
-	ssh-copy-id $REMOTE_USER@$IP
+	ssh-copy-id $SSH_OPTS $REMOTE_USER@$IP
         ssh $SSH_OPTS $REMOTE_USER@$IP
     }
     exit 0
