@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-iwlist 2>/dev/null | grep Signal
+iwlist scan 2>/dev/null | grep Signal
