@@ -9,7 +9,7 @@ VERBOSE=
 PRINT_ONLY=
 DETECT_ONLY=
 SSH_ONLY=
-SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 -o ServerAliveCountMax=9999999"
 if [[ "$TERM" =~ kitty ]]; then
   export TERM=xterm-color
 fi
