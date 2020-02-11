@@ -11,6 +11,9 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 function isWSL() {
     uname -a | grep -q Microsoft
 }
+function isLinux() {
+    uname -a | grep -q Linux
+}
 
 function die() {
     [ -n "${1:-}" ] && echo "$1"
@@ -99,16 +102,14 @@ function bootstrap_ssh_part1() {
         || exit 0
 
     umount "$boot_drive" || echo "Not yet mounted"
-
-    if [[ -f /proc/partitions ]]
-    then
-        boot_drive=$(cat /proc/partitions | grep $(basename $boot_drive) \
-                        | grep -E -o '\w:' | awk '{print tolower($0)}' | cut -d: -f1)
-        boot_mount="/$boot_drive"
-    else
+    if isLinux; then
         boot_mount=$(mktemp -d)
         mount "$boot_drive" $boot_mount
         echo "* Drive is mounted to $boot_mount"
+    else
+        boot_drive=$(cat /proc/partitions | grep $(basename $boot_drive) \
+                        | grep -E -o '\w:' | awk '{print tolower($0)}' | cut -d: -f1)
+        boot_mount="/$boot_drive"
     fi
 
     function cleanup() {
