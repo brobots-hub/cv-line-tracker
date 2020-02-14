@@ -6,6 +6,12 @@
 :highlightjs-languages: yaml, python, shell
 :icons: font
 :imagesdir: images
+:docinfo: shared
+:docinfodir: src
+
+++++
+<link rel="stylesheet" href="reveal.js/lib/css/zenburn.css"/>
+++++
 
 Урок #9
 
