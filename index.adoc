@@ -1,6 +1,6 @@
 = Python 3
 //:backend: revealjs
-:customcss: images/style.css
+:customcss: css/style.css
 // :revealjs_theme: league
 :source-highlighter: highlightjs
 :highlightjs-languages: python, shell
