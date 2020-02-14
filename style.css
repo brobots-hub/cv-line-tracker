@@ -1,0 +1,28 @@
+body {
+  background: #F1C232;
+  background-color: #F1C232;
+}
+
+.col2 {
+  width:48% !important;
+  margin: 0 1% !important;
+  float:left;
+}
+.reveal .col2 ol, .reveal .col2  dl, .reveal .col2  ul {
+    display:table;
+}
+
+.white {
+    background-color: white;
+    background: white;
+}
+
+.reveal table th,
+.reveal table td {
+  text-align: left;
+  padding: 0em 0.5em 0em 0.5em;
+  border-bottom: 1px solid; }
+
+.highlight {
+    font-color: #ff0000;
+}
