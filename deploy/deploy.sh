@@ -9,6 +9,7 @@ VERBOSE=
 PRINT_ONLY=
 DETECT_ONLY=
 SSH_ONLY=
+ONLY_SCRIPT=
 SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 -o ServerAliveCountMax=9999999"
 if [[ "$TERM" =~ kitty ]]; then
   export TERM=xterm-color
@@ -21,14 +22,15 @@ function die() {
 
 function usage {
     echo "Usage: ./deploy.sh [--verbose] [--user <user>] [--ip <ip>] [<host>]"
-    echo "  <host>   - host to deploy to. Can be mDNS address. Default - '$REMOTE_HOST'"
-    echo "  --ip     - IP of remote host. Default is detected from <host>"
-    echo "  --ssh    - just SSH to remote host"
+    echo "  <host>      - host to deploy to. Can be mDNS address. Default - '$REMOTE_HOST'"
+    echo "  --ip <ip>   - IP of remote host. Default is detected from <host>"
+    echo "  --ssh       - just SSH to remote host"
+    echo "  --only <script path>  - run single script"
     echo "  --print-ip  - print IP of remote host"
     echo "  --detect-ip - detect IPs of rpi devices around"
-    echo "  --user   - remote user. Default -'$REMOTE_USER'"
-    echo "  --verobse- be verbose"
-    echo "  --help   - show this help"
+    echo "  --user      - remote user. Default -'$REMOTE_USER'"
+    echo "  --verobse   - be verbose"
+    echo "  --help      - show this help"
 }
 
 while [ "$1" != "" ]; do
@@ -52,6 +54,10 @@ while [ "$1" != "" ]; do
             ;;
         --verbose )
             VERBOSE=y
+            ;;
+        --only )
+            shift
+            ONLY_SCRIPT="$1"
             ;;
         -h | --help )
             usage
@@ -105,8 +111,8 @@ IP="$(getIP $REMOTE_HOST)"
 
 if [ -n "$SSH_ONLY" ]; then
     ssh -oBatchMode=yes $SSH_OPTS $REMOTE_USER@$IP || {
-	ssh-copy-id $SSH_OPTS $REMOTE_USER@$IP
-        ssh $SSH_OPTS $REMOTE_USER@$IP
+	    ssh-copy-id $SSH_OPTS $REMOTE_USER@$IP
+        exec ssh $SSH_OPTS $REMOTE_USER@$IP
     }
     exit 0
 else
@@ -122,7 +128,7 @@ ssh $SSH_OPTS $REMOTE_USER@$IP '
   GREEN='"'"'\033[0;32m'"'"'
   NC='"'"'\033[0m'"'"'
   cd ~/config/'$REMOTE_HOST'
-  for script in $(ls -d *.sh); do
+  for script in '${ONLY_SCRIPT:-'$(ls -d *.sh)'}'; do
     echo
     echo -e "* ${GREEN}Running $script${NC}..."
     echo
