@@ -1,7 +1,0 @@
-#!/bin/sh
-# Install with
-# ln config/git-hooks/pre-commit .git/hooks/
-echo "encrypting files"
-git secret hide -m
-git add .gitsecret/paths/mapping.cfg
-git add *.secret

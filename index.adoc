@@ -3,7 +3,7 @@
 :customcss: css/style.css
 // :revealjs_theme: league
 :source-highlighter: highlightjs
-:highlightjs-languages: python, shell
+:highlightjs-languages: yaml, python, shell
 :icons: font
 :imagesdir: images
 

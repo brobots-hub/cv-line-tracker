@@ -1,3 +1,0 @@
-export RPIIP=$(powershell.exe "Resolve-DnsName raspberrypi.local" | grep '192' | awk '{print $5}')
-
-ssh pi@$RPIIP
