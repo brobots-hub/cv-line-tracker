@@ -2,3 +2,4 @@ log_file = "/var/log/rpicontrol.log"
 server_port = 8080
 motor_duration_default = 2000 #ms
 servo_duration_default = 1000 #ms
+log_format = "%(asctime)s %(levelname)s: %(message)s"

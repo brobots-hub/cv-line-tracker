@@ -9,6 +9,7 @@ import toml
 from services.move_servo import move_servo
 from services.spin_motors import spin_motors
 from services.logs_after import logs_after
+from services.check_wifi import check_wifi
 
 
 def process_args():
@@ -20,19 +21,17 @@ def process_args():
                         help='path to config file', default=path_to_this / '../../config/development.toml')
 
     args = parser.parse_args()
-    print(f"Using config file {args.config}")
+    print(f'Using config file {args.config}')
     config = toml.load(args.config)
     return config
 
 
 config = process_args()
 
-log_format = '%(asctime)s %(levelname)s: %(message)s'
-
 app = flask.Flask(__name__)
-flog.default_handler.setFormatter(logging.Formatter(log_format))
-logging.basicConfig(filename=config["log_file"],
-                    format=log_format,
+flog.default_handler.setFormatter(logging.Formatter(config['log_format']))
+logging.basicConfig(filename=config['log_file'],
+                    format=config['log_format'],
                     level=logging.DEBUG)
 print(f'Flask logger is redirected to {config["log_file"]}')
 
@@ -42,11 +41,16 @@ def healthcheck():
     return 'ok', 200
 
 
+@app.route('/api/v1/wifistrength', methods=['GET'])
+def wifi_strength():
+    return check_wifi(), 200
+
+
 @app.route('/api/v1/motor', methods=['POST'])
 def control_motors():
     power = request.form.get('power', default=None, type=int)
     duration = request.form.get(
-        'duration', default=config["motor_duration_default"], type=int)
+        'duration', default=config['motor_duration_default'], type=int)
 
     if not power:
         logging.warn('Power is not provided')
@@ -66,7 +70,7 @@ def control_motors():
 def control_servo():
     angle = request.form.get('angle', default=0, type=int)
     duration = request.form.get(
-        'duration', default=config["servo_duration_default"], type=int)
+        'duration', default=config['servo_duration_default'], type=int)
 
     if not angle:
         logging.warn('Angle is not provided')
@@ -89,7 +93,7 @@ def get_logs():
     if not timestamp:
         return 'invalid args', 400
 
-    timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S,%f")
+    timestamp = datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S,%f')
     logs = logs_after(timestamp)
 
     return jsonify({'logs': logs}), 200
@@ -97,7 +101,7 @@ def get_logs():
 
 @app.route('/api/v1/debug/clear_log', methods=['POST'])
 def clear_logs():
-    open(config["log_file"], 'w').close()
+    open(config['log_file'], 'w').close()
 
     return 'ok', 200
 
@@ -107,4 +111,4 @@ def page_not_found(e):
     return 'the resource could not be found', 404
 
 
-app.run('localhost', port=config["server_port"])
+app.run('localhost', port=config['server_port'])
