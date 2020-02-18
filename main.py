@@ -16,3 +16,4 @@ while (cap.isOpened()):
     i += 1;
 cap.release()
 cv2.destroyAllWindows()
+

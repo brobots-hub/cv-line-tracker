@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-import glob
 import math
 
 
@@ -30,6 +29,7 @@ def filter_contours(img,contours, step):
             filtered.append(contour)
     return filtered
 
+
 def sub_contours(img_origin, y_from, y_to):
     y_from, y_to = max(1,int(y_from)), int(y_to)
     img = img_origin[-y_to:-y_from,:]
@@ -58,10 +58,13 @@ def track(img_origin, steps=10, y_limit=0.8, debug=False):
         cnts = filter_contours(img,cnts, steps)
         tracks = []
         good_contours = [] 
+
         for j, cnt in enumerate(cnts):
             try:
                 x,y = center(cnt)
                 tracks.append((x,y))
+
+
             except ZeroDivisionError:
                 # bad contour
                 pass
@@ -97,5 +100,6 @@ def track(img_origin, steps=10, y_limit=0.8, debug=False):
         except:
             pass
     return angles
+
 
 
