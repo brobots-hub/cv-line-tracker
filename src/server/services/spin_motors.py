@@ -1,2 +1,5 @@
+import logging
+
+
 def spin_motors(power, duration):
-    pass
+    logging.info('Spin motors for %ims at %i', duration, power)

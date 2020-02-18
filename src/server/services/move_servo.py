@@ -1,2 +1,5 @@
+import logging
+
+
 def move_servo(angle, duration):
-    pass
+    logging.info('Set servo to %i degrees for %ims', angle, duration)
