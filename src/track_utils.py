@@ -1,8 +1,7 @@
 import cv2
 import numpy as np
 import glob
-
-cv2.namedWindow("img_path", cv2.WINDOW_KEEPRATIO )
+import math
 
 
 def filter_color(img):
@@ -15,6 +14,10 @@ def filter_color(img):
     result = cv2.bitwise_and(img, img, mask=mask)
     return result
 
+def find_angle(a, b, c):
+    ang = math.degrees(math.atan2(c[1]-b[1], c[0]-b[0]) - math.atan2(a[1]-b[1], a[0]-b[0]))
+    return round(ang + 360) if ang < 0 else round(ang)
+
 
 
 
@@ -23,7 +26,7 @@ def filter_contours(img,contours, step):
     for contour in contours:
         _,_,w,_ = cv2.boundingRect(contour)
         cnt_area = int(cv2.contourArea(contour))
-        if cnt_area > ((img.shape[0] * img.shape[1]) * 0.10 / step) and (cnt_area < ((img.shape[0] * img.shape[1]) * 0.7) / step) and w < (img.shape[1]*0.4):
+        if cnt_area > ((img.shape[0] * img.shape[1]) * 0.10 / step) and (cnt_area < ((img.shape[0] * img.shape[1]) * 0.7) / step) and w < (img.shape[1]*0.5):
             filtered.append(contour)
     return filtered
 
@@ -74,9 +77,25 @@ def track(img_origin, steps=10, y_limit=0.8, debug=False):
             nearest_x = x
             if debug:
                 cv2.circle(img_origin, (x, y), 3, (0, 0, 255), 2)
-            good_contours.append(cnts[min_index])
-        if len(good_contours) > 0:
-            cv2.drawContours(img_origin, good_contours, -1, (255, 0,0), 5)
-    return result
+    angles = []
+    for i in range(len(result)):
+        try:
+            if abs(result[i+1][0] - result[i][0]) < img_origin.shape[1]*0.2 :
+                cv2.line(img_origin, result[i], result[i + 1], (255, 255, 0), 5)
+                try:
+                    if len(angles) ==0:
+                        angles.append(find_angle((result[i - 1][0], 0), (result[i - 1][0], result[i][1]), result[i + 1]))
+                        angles.append(find_angle(result[i-1], result[i], result[i+1]))
+                    else:
+                        angles.append((angles[-1] - find_angle(result[i - 1], result[i], result[i + 1])))
+                except:
+                    pass
+
+
+            else:
+                break
+        except:
+            pass
+    return angles
 
 
