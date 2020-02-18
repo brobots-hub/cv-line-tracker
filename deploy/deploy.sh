@@ -104,7 +104,7 @@ echo "checking connection..."
 IP="$(getIP $REMOTE_HOST)"
 
 if [ -n "$SSH_ONLY" ]; then
-    ssh -oBatchMode=yes $SSH_OPTS $REMOTE_USER@$IP || {
+    mosh --ssh "ssh -oBatchMode=yes $SSH_OPTS" $REMOTE_USER@$IP || ssh -oBatchMode=yes $SSH_OPTS $REMOTE_USER@$IP || {
 	ssh-copy-id $SSH_OPTS $REMOTE_USER@$IP
         ssh $SSH_OPTS $REMOTE_USER@$IP
     }
