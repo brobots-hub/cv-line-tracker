@@ -24,4 +24,8 @@ in pkgs.mkShell {
   ];
 } // {
   inherit pkgs;
+
+  videoShell = pkgs.mkShell {
+    buildInputs = [ pkgs.ffmpeg_server ];
+  };
 }

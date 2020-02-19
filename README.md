@@ -30,3 +30,5 @@ We assume you have WSL, though most of this stuff will work with MSYS2 (or Git-b
     ```
     nix-shell -A shell
     ```
+## Usefull links:
+- uv4l: http://blog.cudmore.io/post/2019/12/14/Installing-uv4l-on-raspian-buster/
