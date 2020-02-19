@@ -25,7 +25,7 @@ def filter_contours(img,contours, step):
     for contour in contours:
         _,_,w,_ = cv2.boundingRect(contour)
         cnt_area = int(cv2.contourArea(contour))
-        if cnt_area > ((img.shape[0] * img.shape[1]) * 0.10 / step) and (cnt_area < ((img.shape[0] * img.shape[1]) * 0.7) / step) and w < (img.shape[1]*0.5):
+        if cnt_area > ((img.shape[0] * img.shape[1]) * 0.10 / step) and (cnt_area < ((img.shape[0] * img.shape[1]) * 0.1) / step) and w < (img.shape[1]*0.7):
             filtered.append(contour)
     return filtered
 

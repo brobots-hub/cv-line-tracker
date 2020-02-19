@@ -2,7 +2,7 @@ import glob
 import cv2
 import src.track_utils as track_utils
 
-cap = cv2.VideoCapture('./data/track-photo/video_2020-02-10_14-31-54.mp4')
+cap = cv2.VideoCapture('http://192.168.43.77:8088/stream/video.mjpeg')
 cv2.namedWindow("video", cv2.WINDOW_NORMAL)
 i=0
 while (cap.isOpened()):
