@@ -6,6 +6,7 @@ from flask import request, jsonify, logging as flog
 import argparse
 import toml
 
+from ProcessManager import ProcessManager
 from services.move_servo import move_servo
 from services.spin_motors import spin_motors
 from services.logs_after import logs_after
@@ -35,6 +36,10 @@ logging.basicConfig(filename=config['log_file'],
                     level=logging.DEBUG)
 print(f'Flask logger is redirected to {config["log_file"]}')
 
+pm = ProcessManager()
+pm.add_job('motor', spin_motors)
+pm.add_job('servo', move_servo)
+
 
 @app.route('/api/v1/healthcheck', methods=['GET'])
 def healthcheck():
@@ -57,7 +62,7 @@ def control_motors():
         return 'power is not provided', 400
 
     try:
-        spin_motors(power, duration)
+        pm.execute_job('motor', args=(power, duration))
         return 'ok', 200
 
     except Exception as e:
@@ -77,7 +82,7 @@ def control_servo():
         return 'angle is not provided', 400
 
     try:
-        move_servo(angle, duration)
+        pm.execute_job('servo', args=(angle, duration))
         return 'ok', 200
 
     except Exception as e:
