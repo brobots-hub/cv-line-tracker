@@ -10,6 +10,8 @@ let
     p.opencv4
     p.numpy
     p.ipython # optional
+    p.flask
+    p.toml
   ]);
 
 in pkgs.mkShell {
