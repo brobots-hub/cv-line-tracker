@@ -10,6 +10,7 @@ PRINT_ONLY=
 DETECT_ONLY=
 SSH_ONLY=
 ONLY_SCRIPT=
+DEPLOY_TARGET=/home/pi
 SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60 -o ServerAliveCountMax=9999999"
 if [[ "$TERM" =~ kitty ]]; then
   export TERM=xterm-color
@@ -102,8 +103,13 @@ function getIP() {
 function copyStuff() {
     local RPIIP=$(getIP $1)
     [ -n "$VERBOSE" ] && : verbose="-v" || verbose=""
-    rsync -e "ssh $SSH_OPTS" $verbose -a --delete --no-owner $DIR/config/$1 $REMOTE_USER@$RPIIP:config
-    rsync -e "ssh $SSH_OPTS" $verbose -a --delete --no-owner $DIR/../src $REMOTE_USER@$RPIIP:src
+    rsync -e "ssh $SSH_OPTS" $verbose -a --delete --no-owner \
+        $DIR/config/common.local \
+        $DIR/config/$1 \
+        $DIR/../src \
+        $REMOTE_USER@$RPIIP:$DEPLOY_TARGET/config/
+    #rsync -e "ssh $SSH_OPTS" $verbose -a --delete --no-owner $DIR/config/$1 $REMOTE_USER@$RPIIP:$DEPLOY_TARGET/config/
+    #rsync -e "ssh $SSH_OPTS" $verbose -a --delete --no-owner $DIR/../src $REMOTE_USER@$RPIIP:$DEPLOY_TARGET/src
 }
 
 echo "checking connection..."
@@ -111,7 +117,10 @@ IP="$(getIP $REMOTE_HOST)"
 
 if [ -n "$SSH_ONLY" ]; then
     type mosh >/dev/null && {
-      mosh --ssh "ssh -oBatchMode=yes $SSH_OPTS" $REMOTE_USER@$IP 
+      mosh --ssh "ssh -oBatchMode=yes $SSH_OPTS" $REMOTE_USER@$IP || {
+	    ssh-copy-id $SSH_OPTS $REMOTE_USER@$IP
+        exec ssh $SSH_OPTS $REMOTE_USER@$IP
+      }
       exit 0
     }
     ssh -oBatchMode=yes $SSH_OPTS $REMOTE_USER@$IP || {
@@ -125,24 +134,30 @@ fi
 
 echo "Copying to $REMOTE_HOST..."
 copyStuff $REMOTE_HOST
+
+echo -e "\nRunning scripts..."
 ssh $SSH_OPTS $REMOTE_USER@$IP '
   set -u
+  REMOTE_HOST='$REMOTE_HOST'
+  DEPLOY_TARGET='$DEPLOY_TARGET'
   failed=()
   RED='"'"'\033[0;31m'"'"'
   GREEN='"'"'\033[0;32m'"'"'
   NC='"'"'\033[0m'"'"'
-  cd ~/config/'$REMOTE_HOST'
-  for script in '${ONLY_SCRIPT:-'$(ls -d *.sh)'}'; do
-    echo
-    echo -e "* ${GREEN}Running $script${NC}..."
-    echo
-    if stdbuf -oL bash $script ; then
-        :
-    else
-        echo -e "${RED}failed${NC}"
-        failed+=( "$script" )
-    fi
-    sleep 0.1 # stderr can mix with stdout without this
+  for dep in common.local $REMOTE_HOST; do
+      cd $DEPLOY_TARGET/config/$dep
+      for script in '${ONLY_SCRIPT:-'$(ls -d *.sh)'}'; do
+        echo
+        echo -e "* ${GREEN}Running $script${NC}..."
+        echo
+        if stdbuf -oL bash $script ; then
+            :
+        else
+            echo -e "${RED}failed${NC}"
+            failed+=( "$script" )
+        fi
+        sleep 0.1 # stderr can mix with stdout without this
+      done
   done
   echo
   echo "------------"
