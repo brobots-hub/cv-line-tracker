@@ -1,0 +1,12 @@
+[Unit]
+Description=uv4l daemon service
+
+[Service]
+ExecStartPre=/usr/bin/rm -rf /dev/video*
+#ExecStartPre=/usr/bin/pkill uv4l
+ExecStart=/usr/local/bin/uv4l :w
+SyslogIdentifier=uv4l
+
+[Install]
+WantedBy=multi-user.target
+
