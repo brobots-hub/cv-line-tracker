@@ -1,4 +1,6 @@
 sudo apt-get -y install \
     mosh \
     wiringpi \
-    tmux
+    tmux \
+    git \
+    ipython3 python3-gpiozero

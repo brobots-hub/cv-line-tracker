@@ -2,9 +2,9 @@
 Description=uv4l daemon service
 
 [Service]
-ExecStartPre=/usr/bin/rm -rf /dev/video*
+ExecStartPre=/bin/rm -rf /dev/video*
 #ExecStartPre=/usr/bin/pkill uv4l
-ExecStart=/usr/local/bin/uv4l :w
+ExecStart=/usr/local/bin/run-uv4l.sh
 SyslogIdentifier=uv4l
 
 [Install]
