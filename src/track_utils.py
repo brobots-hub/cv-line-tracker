@@ -4,7 +4,7 @@ def sub_contours(img_origin, y_from, y_to):
     y_from, y_to = max(1,int(y_from)), int(y_to)
     img = img_origin[-y_to:-y_from,:]
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    ret, thresh = cv2.threshold(img, 127, 255, 0)
+    ret, thresh = cv2.threshold(img, 200, 255, 0)
     thresh = cv2.bitwise_not(thresh)
     contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     for c in contours:
