@@ -55,7 +55,7 @@ def track(img_origin, steps=10, y_limit=0.8, debug=False):
 
     for i in range(0,steps):
         cnts = sub_contours(img, i * step_y, (i+1)* step_y)
-        cnts = filter_contours(img,cnts, steps)
+        #cnts = filter_contours(img,cnts, steps)
         tracks = []
         good_contours = [] 
 
@@ -83,14 +83,10 @@ def track(img_origin, steps=10, y_limit=0.8, debug=False):
     angles = []
     for i in range(len(result)):
         try:
-            if abs(result[i+1][0] - result[i][0]) < img_origin.shape[1]*0.2 :
+            if abs(result[i][0] - result[i-2][0]) < img_origin.shape[1]*0.2 :
                 cv2.line(img_origin, result[i], result[i + 1], (255, 255, 0), 5)
                 try:
-                    if len(angles) ==0:
-                        angles.append(find_angle((result[i - 1][0], 0), (result[i - 1][0], result[i][1]), result[i + 1]))
-                        angles.append(find_angle(result[i-1], result[i], result[i+1]))
-                    else:
-                        angles.append((angles[-1] - find_angle(result[i - 1], result[i], result[i + 1])))
+                    angles.append(find_angle(result[i-2], result[i-1], result[i]))
                 except:
                     pass
 
@@ -100,6 +96,3 @@ def track(img_origin, steps=10, y_limit=0.8, debug=False):
         except:
             pass
     return angles
-
-
-
