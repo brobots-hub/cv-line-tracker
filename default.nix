@@ -12,6 +12,14 @@ let
     p.ipython # optional
   ]);
 
+  pythonScreenEnv = pkgs.python3.withPackages (p: [
+    p.opencv4
+    p.numpy
+    p.ipython
+    p.xlib
+    p.pillow
+  ]);
+
 in pkgs.mkShell {
   buildInputs = [
     pythonEnv
@@ -27,5 +35,12 @@ in pkgs.mkShell {
 
   videoShell = pkgs.mkShell {
     buildInputs = [ pkgs.ffmpeg_server ];
+  };
+
+  screenShell = pkgs.mkShell {
+    buildInputs = [
+      pythonScreenEnv
+      pkgs.openscad
+    ];
   };
 }
