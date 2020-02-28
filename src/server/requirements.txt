@@ -1,0 +1,5 @@
+flask
+toml
+gpiozero
+RPi.GPIO
+#opencv-python

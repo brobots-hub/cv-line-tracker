@@ -3,7 +3,7 @@ from gpiozero import LED
 from time import sleep
 import curses
 
-servo = PWMLED(17)
+servo = PWMLED(13)
 servo_min = 0.1
 servo_max = 0.28
 

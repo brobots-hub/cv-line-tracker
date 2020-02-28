@@ -1,0 +1,14 @@
+[Unit]
+Description=Robot API server
+StartLimitInterval=400
+StartLimitBurst=3
+
+[Service]
+ExecStart=/home/pi/config/line-tracker.local/etc/robot-api/run-api.sh
+SyslogIdentifier=robot-api
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
+
