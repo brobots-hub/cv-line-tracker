@@ -40,8 +40,8 @@ def rotate(angle=0):
 
 angle = 0.0
 actions = {
-        curses.KEY_UP:    lambda: motor(speed=0.4, eternal=True),
-        curses.KEY_DOWN:  lambda: motor(speed=-0.4, eternal=True),
+        curses.KEY_UP:    lambda: motor(speed=0.3, eternal=True),
+        curses.KEY_DOWN:  lambda: motor(speed=-0.3, eternal=True),
         curses.KEY_LEFT:  lambda: rotate(LEFT),
         curses.KEY_RIGHT: lambda: rotate(RIGHT),
 }
