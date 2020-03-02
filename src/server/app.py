@@ -13,7 +13,27 @@ from services.logs_after import logs_after
 from services.check_wifi import check_wifi
 
 from gpiozero import PWMLED
+
 servo = PWMLED(13)
+servo_center=0.125
+servo_span=0.045
+servo_min = servo_center-servo_span
+servo_max = servo_center+servo_span
+
+LEFT = +1
+RIGHT = -1
+
+motor1 = PWMLED(6)
+
+def motor(speed=0.1, delay=0.2, eternal=False):
+    motor1.value = abs(speed)
+    if not eternal:
+        sleep(delay)
+        motor1.value = 0
+
+def rotate(angle=0):
+  servo.value = servo_center + angle * servo_span
+
 
 def process_args():
     import pathlib
@@ -59,12 +79,12 @@ def control_motors():
     duration = request.form.get(
         'duration', default=config['motor_duration_default'], type=float)
 
-    if not power:
+    if power is None:
         logging.warn('Power is not provided')
         return 'power is not provided', 400
 
     try:
-        pm.execute_job('motor', args=(power, duration))
+        motor(power, eternal=True)
         return 'ok', 200
 
     except Exception as e:
@@ -79,14 +99,13 @@ def control_servo():
     duration = request.form.get(
         'duration', default=config['servo_duration_default'], type=float)
 
-    if not angle:
+    if angle is None:
         logging.warn('Angle is not provided')
         return 'angle is not provided', 400
 
     try:
         servo.value = angle
-        pm.execute_job('servo', args=(angle, duration))
-        return 'ok', 200
+        return 'nice', 200
 
     except Exception as e:
         logging.warn(
