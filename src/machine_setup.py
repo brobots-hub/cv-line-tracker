@@ -10,29 +10,38 @@ servo_max = 0.28
 LEFT = +1
 RIGHT = -1
 
-motor1 = PWMLED(5)
-motor2 = PWMLED(6)
+#motor1 = PWMLED(5)
+#motor2 = PWMLED(6)
+
+motor1 = PWMLED(6)
 
 def motor(speed=0.1, delay=0.2, eternal=False):
-    if speed >= 0:
-        motor2.value = speed
-        motor1.value = 0
-    else:
-        motor1.value = abs(speed)
-        motor2.value = 0
+    motor1.value = abs(speed)
     if not eternal:
         sleep(delay)
         motor1.value = 0
-        motor2.value = 0
+
+# def motor(speed=0.1, delay=0.2, eternal=False):
+#     if speed >= 0:
+#         motor2.value = speed
+#         motor1.value = 0
+#     else:
+#         motor1.value = abs(speed)
+#         motor2.value = 0
+#     if not eternal:
+#         sleep(delay)
+#         motor1.value = 0
+#         motor2.value = 0
 
 def rotate(angle=0):
   center = (servo_max + servo_min) / 2
   amp = (servo_max - servo_min) / 2
   servo.value = center + angle*amp
 
+angle = 0.0
 actions = {
-        curses.KEY_UP:    lambda: motor(speed=1, eternal=True),
-        curses.KEY_DOWN:  lambda: motor(speed=-1, eternal=True),
+        curses.KEY_UP:    lambda: motor(speed=0.4, eternal=True),
+        curses.KEY_DOWN:  lambda: motor(speed=-0.4, eternal=True),
         curses.KEY_LEFT:  lambda: rotate(LEFT),
         curses.KEY_RIGHT: lambda: rotate(RIGHT),
 }

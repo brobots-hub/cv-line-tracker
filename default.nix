@@ -22,7 +22,7 @@ in pkgs.mkShell {
     pkgs.gnupg # required for git-secret
 
     # for ffserver and ffplay - they are absent in pkgs.ffmpeg
-    pkgs.ffmpeg-full
+    #pkgs.ffmpeg-full
   ];
 } // {
   inherit pkgs;

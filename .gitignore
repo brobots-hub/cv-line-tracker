@@ -147,3 +147,7 @@ pip-selfcheck.json
 deploy/config/secret/*
 config/secret/*
 !*.secret
+
+# Nix
+result
+**/result

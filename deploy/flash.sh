@@ -3,10 +3,11 @@
 set -u
 # set -x
 
-IMG_URL="https://downloads.raspberrypi.org/raspbian/images/raspbian-2019-09-30/2019-09-26-raspbian-buster.zip"
+#IMG_URL="https://downloads.raspberrypi.org/raspbian/images/raspbian-2019-09-30/2019-09-26-raspbian-buster.zip"
+IMG_URL="http://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2020-02-14/2020-02-13-raspbian-buster-lite.zip"
 HASH_URL="${IMG_URL}.sha256"
-OS_NAME=$(basename "$IMG_URL")
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+OS_NAME=$DIR/$(basename "$IMG_URL")
 
 function isWSL() {
     uname -a | grep -q Microsoft
@@ -47,12 +48,12 @@ function yesno() {
     [[ $REPLY =~ ^[Yy]$ ]] && return 0 || return 1
 }
 
-hash="$(curl --silent "$HASH_URL")"
+hash="$(curl --silent "$HASH_URL" | awk '{print $1}')"
 echo "* Checking hash of OS. It may take some time..."
-filehash="$(sha256sum -t $OS_NAME)"
+filehash="$(sha256sum -t $OS_NAME | awk '{print $1}')"
 
 if [ "$filehash" != "$hash" ]; then
-    echo "Invalid hash"
+    echo "Invalid hash. Should be $hash but is $filehash"
     yesno "Should I redownload image?" \
         && rm -rf "$OS_NAME"
     echo
@@ -64,7 +65,10 @@ else
     trap 'exit 1' SIGINT # handle Ctrl-C correctly in a while true loop
     while true; do
         sleep 1
-        curl -L -O -C - "$IMG_URL" && break
+        (
+         cd $DIR
+         curl -L -O -C - "$IMG_URL" 
+        ) && break
     done
 fi
 
