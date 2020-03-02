@@ -2,6 +2,10 @@ import logging
 import multiprocessing
 import time
 
+# import sys
+# sys.path.append("...")
+
+# import machine_setup
 
 def spin_motors(power, duration):
     """Spin motor for some duration
@@ -13,4 +17,6 @@ def spin_motors(power, duration):
     duration: int
         Duration (in ms) motors will spin for.
     """
-    time.sleep(duration / 1000)
+    pass
+    # machine_setup.motor(power, duration)
+    # machine_setup.motor(0)

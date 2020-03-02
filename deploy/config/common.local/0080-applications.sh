@@ -3,4 +3,4 @@ sudo apt-get -y install \
     wiringpi \
     tmux \
     git \
-    ipython3 python3-gpiozero
+    ipython3 python3-gpiozero python3-venv
