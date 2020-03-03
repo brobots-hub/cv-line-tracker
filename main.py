@@ -1,8 +1,9 @@
 import glob
 import cv2
 import src.track_utils as track_utils
+import sys
 
-cap = cv2.VideoCapture('http://192.168.43.77:8088/stream/video.mjpeg')
+cap = cv2.VideoCapture('http://'+ sys.argv[1] +':8088/stream/video.mjpeg')
 cv2.namedWindow("video", cv2.WINDOW_NORMAL)
 while (cap.isOpened()):
         ret, frame = cap.read()
