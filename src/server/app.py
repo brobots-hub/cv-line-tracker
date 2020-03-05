@@ -90,8 +90,6 @@ def control_motors():
     duration = request.form.get(
         'duration', default=config['motor_duration_default'], type=float)
 
-    print(power, duration)
-
     if power is None:
         logging.warn('Power is not provided')
         return 'power is not provided', 400
@@ -111,8 +109,6 @@ def control_servo():
     angle = request.form.get('angle', default=None, type=float)
     duration = request.form.get(
         'duration', default=config['servo_duration_default'], type=float)
-
-    print(angle, duration)
 
     if angle is None:
         logging.warn('Angle is not provided')

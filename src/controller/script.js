@@ -51,9 +51,6 @@ function onKeyPress(e) {
   if (current_angle < min_angle) current_angle = min_angle;
   if (current_angle > max_angle) current_angle = max_angle;
 
-  console.log(current_speed);
-  console.log(current_angle);
-
   let headers = new Headers();
   headers.append('Content-Type', 'application/x-www-form-urlencoded');
 
