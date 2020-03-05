@@ -12,11 +12,20 @@ from services.spin_motors import spin_motors
 from services.logs_after import logs_after
 from services.check_wifi import check_wifi
 
-from gpiozero import PWMLED
+try:
+    import gpiozero
+except:
+    print('gpiozero module is not available')
+
+    class PWMLED:
+        value = 0
+
+        def __init__(self, x):
+            pass
 
 servo = PWMLED(13)
-servo_center=0.125
-servo_span=0.045
+servo_center = 0.125
+servo_span = 0.045
 servo_min = servo_center-servo_span
 servo_max = servo_center+servo_span
 
@@ -25,14 +34,16 @@ RIGHT = -1
 
 motor1 = PWMLED(6)
 
+
 def motor(speed=0.1, delay=0.2, eternal=False):
     motor1.value = abs(speed)
     if not eternal:
         sleep(delay)
         motor1.value = 0
 
+
 def rotate(angle=0):
-  servo.value = servo_center + angle * servo_span
+    servo.value = servo_center + angle * servo_span
 
 
 def process_args():
@@ -79,6 +90,8 @@ def control_motors():
     duration = request.form.get(
         'duration', default=config['motor_duration_default'], type=float)
 
+    print(power, duration)
+
     if power is None:
         logging.warn('Power is not provided')
         return 'power is not provided', 400
@@ -95,9 +108,11 @@ def control_motors():
 
 @app.route('/api/v1/servo', methods=['POST'])
 def control_servo():
-    angle = request.form.get('angle', default=0, type=float)
+    angle = request.form.get('angle', default=None, type=float)
     duration = request.form.get(
         'duration', default=config['servo_duration_default'], type=float)
+
+    print(angle, duration)
 
     if angle is None:
         logging.warn('Angle is not provided')
@@ -139,4 +154,3 @@ def page_not_found(e):
 
 
 app.run(host=config['host'], port=config['server_port'])
-
