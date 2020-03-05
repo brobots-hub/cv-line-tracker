@@ -37,7 +37,7 @@ function onKeyPress(e) {
       break;
 
     case 16:
-      console.log('ctrl pressed');
+      console.log('shift pressed');
       current_speed = 1;
       current_angle = 90;
       break;
@@ -56,6 +56,7 @@ function onKeyPress(e) {
 
   let mUrlencoded = new URLSearchParams();
   mUrlencoded.append('power', current_speed);
+  mUrlencoded.append('duration', 5000);
 
   fetch('/motor', {
     method: 'POST',
@@ -65,6 +66,7 @@ function onKeyPress(e) {
 
   let rUrlencoded = new URLSearchParams();
   rUrlencoded.append('angle', current_angle);
+  rUrlencoded.append('duration', 5000);
 
   fetch('/servo', {
     method: 'POST',
