@@ -2,4 +2,5 @@ flask
 toml
 gpiozero
 RPi.GPIO
+recordclass
 #opencv-python
