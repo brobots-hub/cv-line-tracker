@@ -1,5 +1,6 @@
 #! /usr/bin/env bash
 export PATH=/nix/var/nix/profiles/default/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+export LD_PRELOAD=/usr/lib/uv4l/uv4lext/armv6l/libuv4lext.so
 
 rm -rf /dev/video*
 uv4l --driver raspicam --encoding h264 \

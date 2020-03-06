@@ -2,6 +2,7 @@ from datetime import datetime
 import logging
 
 import flask
+from flask_cors import CORS
 from flask import request, jsonify, logging as flog
 import argparse
 import toml
@@ -13,7 +14,7 @@ from services.logs_after import logs_after
 from services.check_wifi import check_wifi
 
 try:
-    import gpiozero
+    from gpiozero import PWMLED
 except:
     print('gpiozero module is not available')
 
@@ -63,6 +64,7 @@ def process_args():
 config = process_args()
 
 app = flask.Flask(__name__)
+CORS(app)
 flog.default_handler.setFormatter(logging.Formatter(config['log_format']))
 logging.basicConfig(filename=config['log_file'],
                     format=config['log_format'],
