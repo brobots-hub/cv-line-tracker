@@ -97,6 +97,7 @@ self: super: {
     p.gpiozero
     p.rpi_gpio
     p.colorzero
+    p.pillow
   ])).override {
     makeWrapperArgs = if builtins.currentSystem != "x86_64-linux" then [ 
       "--prefix LD_LIBRARY_PATH : ${self.raspberrypi-tools}/lib"
