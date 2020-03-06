@@ -5,6 +5,8 @@ if which uv4l 2>/dev/null; then :; else
     echo 'deb http://www.linux-projects.org/listing/uv4l_repo/raspbian/stretch stretch main' | sudo tee -a /etc/apt/sources.list
     sudo apt-get update
     sudo apt-get -y install uv4l uv4l-server uv4l-raspicam
+    # it pollutes environment with custom LD_PRELOAD. We'll readd it in service instead
+    truncate -s0 /etc/environment
 fi
 
 sudo cp -rf etc/uv4l.service /etc/systemd/system/
