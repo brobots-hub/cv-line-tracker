@@ -1,16 +1,16 @@
 window.addEventListener('keydown', onKeyPress, false);
 window.addEventListener('keyup', onKeyRelease, false);
 
-let api_url = 'xyz.xyz/api/v1';
+let api_url = 'http://192.168.43.77:8080/api/v1';
 
-let current_speed = 1;
-let max_speed = 255;
+let current_speed = 0.001;
+let max_speed = 1;
 let multiplier = 1.5;
 
-let current_angle = 90;
-let min_angle = 30;
-let max_angle = 120;
-let turn_angle = 10;
+let current_angle = 0.125;
+let min_angle = 0.04;
+let max_angle = 0.21;
+let turn_angle = 0.007;
 
 function onKeyPress(e) {
   let keyCode = e.keyCode;
@@ -38,8 +38,8 @@ function onKeyPress(e) {
 
     case 16:
       console.log('shift pressed');
-      current_speed = 1;
-      current_angle = 90;
+      current_speed = 0.2;
+      current_angle = 0.125;
       break;
 
     default:
@@ -56,9 +56,8 @@ function onKeyPress(e) {
 
   let mUrlencoded = new URLSearchParams();
   mUrlencoded.append('power', current_speed);
-  mUrlencoded.append('duration', 5000);
 
-  fetch('/motor', {
+  fetch(api_url + '/motor', {
     method: 'POST',
     body: mUrlencoded,
     headers,
@@ -66,13 +65,13 @@ function onKeyPress(e) {
 
   let rUrlencoded = new URLSearchParams();
   rUrlencoded.append('angle', current_angle);
-  rUrlencoded.append('duration', 5000);
 
-  fetch('/servo', {
+  fetch(api_url + '/servo', {
     method: 'POST',
     body: rUrlencoded,
     headers,
   });
+  console.log('angle=' + current_angle);
 }
 
 function onKeyRelease(e) {}

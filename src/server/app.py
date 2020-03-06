@@ -14,7 +14,7 @@ from services.logs_after import logs_after
 from services.check_wifi import check_wifi
 
 try:
-    import gpiozero
+    from gpiozero import PWMLED
 except:
     print('gpiozero module is not available')
 

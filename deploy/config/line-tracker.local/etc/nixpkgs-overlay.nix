@@ -38,6 +38,38 @@ self: super: {
         ];
         doCheck = false;
       };
+
+      rpi_gpio = pythonsuper.buildPythonPackage rec {
+        pname = "RPi.GPIO";
+        version = "0.7.0";
+        src = pythonsuper.fetchPypi {
+          inherit pname version;
+          sha256 = "7424bc6c205466764f30f666c18187a0824077daf20b295c42f08aea2cb87d3f";
+        };
+        doCheck = false;
+      };
+
+      colorzero = pythonsuper.buildPythonPackage rec {
+        pname = "colorzero";
+        version = "1.1";
+        src = pythonsuper.fetchPypi {
+          inherit pname version;
+          sha256 = "acba47119b5d8555680d3cda9afe6ccc5481385ccc3c00084dd973f7aa184599";
+        };
+        doCheck = false;
+      };
+      
+      gpiozero = pythonsuper.buildPythonPackage rec {
+        pname = "gpiozero";
+        version = "1.5.1";
+        src = pythonsuper.fetchPypi {
+          inherit pname version;
+          sha256 = "ae1a8dc4e6e793ffd8f900968f3290d218052c46347fa0c0503c65fabe422e4d";
+        };
+        doCheck = false;
+        buildInputs = with pythonself; [ colorzero ];
+      };
+      
     };
   };
 
@@ -62,6 +94,9 @@ self: super: {
     p.numpy
     p.picamera
     p.opencv4
+    p.gpiozero
+    p.rpi_gpio
+    p.colorzero
   ])).override {
     makeWrapperArgs = if builtins.currentSystem != "x86_64-linux" then [ 
       "--prefix LD_LIBRARY_PATH : ${self.raspberrypi-tools}/lib"
