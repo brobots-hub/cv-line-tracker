@@ -1,7 +1,7 @@
 window.addEventListener('keydown', onKeyPress, false);
 window.addEventListener('keyup', onKeyRelease, false);
 
-let api_url = 'http://192.168.43.77:8080/api/v1';
+let api_url = 'http://192.168.88.76:8080/api/v1';
 
 let current_speed = 0.001;
 let max_speed = 1;
@@ -28,12 +28,12 @@ function onKeyPress(e) {
 
     case 65:
       console.log('a pressed');
-      current_angle -= turn_angle;
+      current_angle += turn_angle;
       break;
 
     case 68:
       console.log('d pressed');
-      current_angle += turn_angle;
+      current_angle -= turn_angle;
       break;
 
     case 16:
